@@ -4,13 +4,15 @@ on:
 jobs:
   upload-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write          # ← THIS grants release creation permission
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4   # ← THIS WAS MISSING
+        uses: actions/checkout@v4
 
       - name: Download GGUF
         run: |
-          wget -O model.gguf "https://huggingface.co/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/resolve/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
+          wget -O model.gguf "https://hf-mirror.com/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/resolve/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
 
       - name: Split into 2 GB chunks
         run: split -b 2000M model.gguf chunk.
