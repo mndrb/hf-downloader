@@ -1,16 +1,26 @@
-name: 'Download GGUF'
+name: 'Split & Upload to Release'
 on:
   workflow_dispatch:
 jobs:
-  download:
+  upload-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Download the GGUF file
+      - name: Download GGUF
+        run: wget -O model.gguf "https://huggingface.co/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/resolve/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
+
+      - name: Split into 2 GB chunks
+        run: split -b 2000M model.gguf chunk.
+
+      - name: Create release
         run: |
-          wget --progress=bar:force -O model.gguf "https://huggingface.co/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/resolve/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
-      - name: Upload as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: model-file
-          path: model.gguf
-          retention-days: 1
+          gh release create v1.0.0 --title "GGUF parts" --notes "6 GB file split into 2 GB chunks"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload chunks as release assets
+        run: |
+          for file in chunk.*; do
+            gh release upload v1.0.0 "$file" --clobber
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
