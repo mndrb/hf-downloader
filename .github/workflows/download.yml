@@ -1,11 +1,11 @@
-name: 'Split & Upload to Release'
+name: 'Split & Upload to Release (200MB chunks)'
 on:
   workflow_dispatch:
 jobs:
   upload-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write          # ← THIS grants release creation permission
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -14,19 +14,19 @@ jobs:
         run: |
           wget -O model.gguf "https://hf-mirror.com/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/resolve/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
 
-      - name: Split into 2 GB chunks
-        run: split -b 2000M model.gguf chunk.
+      - name: Split into 200MB chunks
+        run: split -b 200M model.gguf chunk.
 
-      - name: Create release
+      - name: Create release (use new tag to avoid conflict)
         run: |
-          gh release create v1.0.0 --title "GGUF parts" --notes "6 GB file split into 2 GB chunks"
+          gh release create v1.0.2 --title "GGUF parts (200MB)" --notes "6.8 GB file split into 200MB chunks"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload chunks as release assets
+      - name: Upload all chunks
         run: |
           for file in chunk.*; do
-            gh release upload v1.0.0 "$file" --clobber
+            gh release upload v1.0.2 "$file" --clobber
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
