@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: Download the GGUF file
         run: |
-          wget --progress=bar:force -O model.gguf "https://huggingface.co/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/blob/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
+          wget --progress=bar:force -O model.gguf "https://huggingface.co/bartowski/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-GGUF/resolve/main/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored-Q6_K_L.gguf"
       - name: Upload as artifact
         uses: actions/upload-artifact@v4
         with:
